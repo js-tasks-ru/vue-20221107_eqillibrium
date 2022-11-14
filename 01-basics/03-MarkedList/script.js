@@ -1,32 +1,53 @@
-// import { createApp } from './vendor/vue.esm-browser.js';
+import { createApp, defineComponent } from './vendor/vue.esm-browser.js';
 
-// From https://jsonplaceholder.typicode.com/comments
-const emails = [
-  'Eliseo@gardner.biz',
-  'Jayne_Kuhic@sydney.com',
-  'Nikita@garfield.biz',
-  'Lew@alysha.tv',
-  'Hayden@althea.biz',
-  'Presley.Mueller@myrl.com',
-  'Dallas@ole.me',
-  'Mallory_Kunze@marie.org',
-  'Meghan_Littel@rene.us',
-  'Carmen_Keeling@caroline.name',
-  'Veronica_Goodwin@timmothy.net',
-  'Oswald.Vandervort@leanne.org',
-  'Kariane@jadyn.tv',
-  'Nathan@solon.io',
-  'Maynard.Hodkiewicz@roberta.com',
-  'Christine@ayana.info',
-  'Preston_Hudson@blaise.tv',
-  'Vincenza_Klocko@albertha.name',
-  'Madelynn.Gorczany@darion.biz',
-  'Mariana_Orn@preston.org',
-  'Noemie@marques.me',
-  'Khalil@emile.co.uk',
-  'Sophia@arianna.co.uk',
-  'Jeffery@juwan.us',
-  'Isaias_Kuhic@jarrett.net',
-];
+const App = defineComponent({
+  data() {
+    return {
+      mark: '',
+      comments: [],
+      start: 0,
+      limit: 15,
+      perPage: 15,
+      page: 1,
+    };
+  },
+  computed: {
+    markedEmails() {
+      if (this.mark)
+        return this.comments.map((el) =>
+          el.email.toLowerCase().includes(this.mark.toLowerCase()) ? { ...el, marked: true } : { ...el },
+        );
+      return this.comments;
+    },
+  },
+  async mounted() {
+    await this.fetchComments();
+  },
+  methods: {
+    async nextPage() {
+      this.page += 1;
+      this.start = this.start + this.perPage;
+      await this.fetchComments();
+    },
+    async prevPage() {
+      if (this.page !== 1) {
+        this.page -= 1;
+        this.start = this.start - this.perPage;
+        await this.fetchComments();
+      }
+    },
+    async fetchComments() {
+      try {
+        const response = await fetch(
+          `https://jsonplaceholder.typicode.com/comments?_start=${this.start}&_limit=${this.limit}`,
+        );
+        const data = await response.json();
+        this.comments = data.map((el) => ({ ...el, marked: false }));
+      } catch (e) {
+        console.log(e);
+      }
+    },
+  },
+});
 
-// Требуется создать Vue приложение
+createApp(App).mount('#app');
