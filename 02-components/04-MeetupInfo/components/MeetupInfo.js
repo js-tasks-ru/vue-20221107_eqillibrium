@@ -9,6 +9,19 @@ export default defineComponent({
     date: Number,
   },
 
+  computed: {
+    formatDate() {
+      return new Date(this.date).toLocaleString(navigator.language, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    },
+    dateTime() {
+      return new Date(this.date).toISOString().substr(0, 10);
+    },
+  },
+
   template: `
     <ul class="meetup-info">
       <li>
@@ -21,7 +34,7 @@ export default defineComponent({
       </li>
       <li>
         <img class="icon meetup-info__icon" alt="icon" src="/assets/icons/icon-cal-lg.svg" />
-        <time datetime="2020-01-01">{{ new Date().toLocaleDateString(date)}}</time>
+        <time :datetime="dateTime">{{ formatDate }}</time>
       </li>
     </ul>`,
 });

@@ -10,9 +10,9 @@ export default defineComponent({
     }
   },
 
-  emits: ['update'],
+  emits: ['update:count'],
 
   // Компонент должен иметь входной параметр и порождать событие
 
-  template: `<button type="button" @click="$emit('update')">{{ count }}</button>`,
+  template: `<button type="button" @click="$emit('update:count', count + 1)">{{ count }}</button>`,
 });
