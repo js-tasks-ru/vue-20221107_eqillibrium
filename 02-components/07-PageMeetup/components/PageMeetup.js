@@ -54,11 +54,5 @@ export default defineComponent({
     <UiContainer v-if="error">
       <UiAlert>{{ this.error }}</UiAlert>
     </UiContainer>
-    </div>
-    <script>
-    import MeetupView from "./MeetupView";
-    export default {
-      components: { MeetupView }
-    };
-    </script>`,
+    </div>`,
 });

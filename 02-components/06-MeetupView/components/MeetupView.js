@@ -47,15 +47,5 @@ export default defineComponent({
       </div>
       <ui-alert v-else>Программа пока пуста...</ui-alert>
     </ui-container>
-    </div>
-    <script>
-    import MeetupCover from "./MeetupCover";
-    import MeetupDescription from "./MeetupDescription";
-    import MeetupAgenda from "./MeetupAgenda";
-    import MeetupInfo from "./MeetupInfo";
-
-    export default {
-      components: { MeetupInfo, MeetupAgenda, MeetupDescription, MeetupCover }
-    };
-    </script>`,
+    </div>`,
 });
