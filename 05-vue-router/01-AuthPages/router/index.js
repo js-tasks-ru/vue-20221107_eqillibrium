@@ -10,13 +10,13 @@ export const router = createRouter({
       component: PageIndex
     },
     {
-      path: '/login ',
-      name: 'login ',
+      path: '/login',
+      name: 'login',
       component: () => import('../views/PageLogin')
     },
     {
-      path: '/register ',
-      name: 'register ',
+      path: '/register',
+      name: 'register',
       component: () => import('../views/PageRegister')
     },
   ],

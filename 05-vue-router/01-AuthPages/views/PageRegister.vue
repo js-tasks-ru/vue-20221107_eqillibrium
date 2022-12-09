@@ -54,7 +54,7 @@ export default {
   methods: {
     handleSubmit() {
       // Требуется обработать сабмит формы
-      this.$router.query.from ? this.$router.push(this.$router.query.from) : this.$router.push('/');
+      this.$router.push({ name: 'login' });
     },
   },
 };
