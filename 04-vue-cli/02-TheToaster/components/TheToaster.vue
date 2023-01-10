@@ -1,46 +1,63 @@
 <template>
-  <div class="toasts">
-    <div class="toast toast_success">
-      <ui-icon class="toast__icon" icon="check-circle" />
-      <span>Success Toast Example</span>
-    </div>
-
-    <div class="toast toast_error">
-      <ui-icon class="toast__icon" icon="alert-circle" />
-      <span>Error Toast Example</span>
-    </div>
-  </div>
+  <ToastsContainer>
+    <UIToast
+      v-for="[id, toast] in toastsMap"
+      :key="id"
+      :toast="toast"
+      @close="remove(id)"
+    />
+  </ToastsContainer>
 </template>
 
 <script>
 import UiIcon from './UiIcon.vue';
+import UIToast from './UIToast';
+import ToastsContainer from './ToastsContainer';
+
+class Toast {
+  constructor(type, message, lifetime) {
+    this.types = ['success', 'error'];
+    this.type = this.types.includes(type) ? type : 'success';
+    this.message = message || 'No message';
+    this.lifetime = lifetime || 5000;
+  }
+}
 
 export default {
   name: 'TheToaster',
 
-  components: { UiIcon },
+  components: { ToastsContainer, UIToast, UiIcon },
+
+  data() {
+    return {
+      toastsMap: new Map(),
+    };
+  },
+
+  methods: {
+    success(message) {
+      const newSuccessToast = new Toast('success', message);
+      this.add(newSuccessToast);
+    },
+    error(message) {
+      const newErrorToast = new Toast('error', message);
+      this.add(newErrorToast);
+    },
+    add(t) {
+      const id = setTimeout(() => {
+        this.remove(id);
+      }, t.lifetime);
+      this.toastsMap.set(id, t);
+    },
+    remove(id) {
+      this.toastsMap.delete(id);
+      clearTimeout(id);
+    },
+  },
 };
 </script>
 
 <style scoped>
-.toasts {
-  position: fixed;
-  bottom: 8px;
-  right: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  white-space: pre-wrap;
-  z-index: 999;
-}
-
-@media all and (min-width: 992px) {
-  .toasts {
-    bottom: 72px;
-    right: 112px;
-  }
-}
-
 .toast {
   display: flex;
   flex: 0 0 auto;
