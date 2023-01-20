@@ -1,30 +1,79 @@
 <template>
-  <div class="dropdown dropdown_opened">
-    <button type="button" class="dropdown__toggle dropdown__toggle_icon">
-      <ui-icon icon="tv" class="dropdown__icon" />
-      <span>Title</span>
+  <div :class="['dropdown', { dropdown_opened: show }]">
+    <button type="button" :class="['dropdown__toggle', { dropdown__toggle_icon: isOptionsWithIconExists }]" @click="toggle">
+      <ui-icon :icon="optionIcon" class="dropdown__icon" />
+      <span>{{ computedTitle }}</span>
     </button>
 
-    <div class="dropdown__menu" role="listbox">
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <ui-icon icon="tv" class="dropdown__icon" />
-        Option 1
-      </button>
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <ui-icon icon="tv" class="dropdown__icon" />
-        Option 2
-      </button>
-    </div>
+    <DropdownList v-show="show">
+      <DropdownItem
+        v-for="option in options"
+        :key="option.title"
+        :option="option"
+        :isOptionsWithIconExists="isOptionsWithIconExists"
+        @select="selectOption"
+      />
+    </DropdownList>
   </div>
 </template>
 
 <script>
 import UiIcon from './UiIcon';
+import DropdownList from './DropdownList';
+import DropdownItem from './DropdownItem';
 
 export default {
   name: 'UiDropdown',
 
-  components: { UiIcon },
+  components: { DropdownItem, DropdownList, UiIcon },
+
+  props: {
+    options: {
+      type: Array,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    modelValue: String,
+  },
+
+  emits: ['update:modelValue'],
+
+  data() {
+    return {
+      show: false,
+      selected: null,
+    };
+  },
+  computed: {
+    computedTitle() {
+      return this.modelValue ? this.optionByModelValue['text'] : this.title;
+    },
+    optionByModelValue() {
+      return this.options.find((el) => el.value === this.modelValue);
+    },
+    optionIcon() {
+      return this.optionByModelValue ? this.optionByModelValue.icon : '';
+    },
+    isOptionsWithIconExists() {
+      return this.options.filter((el) => Object.hasOwn(el, 'icon')).length !== 0;
+    },
+  },
+  mounted() {
+    console.log(this.optionsWithIcon);
+  },
+  methods: {
+    toggle() {
+      this.show = !this.show;
+    },
+    selectOption(option) {
+      this.$emit('update:modelValue', option.value);
+      this.selected = option;
+      this.show = false;
+    },
+  },
 };
 </script>
 

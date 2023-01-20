@@ -1,13 +1,40 @@
 <template>
-  <div class="input-group input-group_icon input-group_icon-left input-group_icon-right">
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+  <div
+    class="input-group"
+    :class="{
+      'input-group_icon': checkRightIcon() || checkLeftIcon(),
+      'input-group_icon-left': checkLeftIcon(),
+      'input-group_icon-right': checkRightIcon(),
+    }"
+  >
+    <div
+      v-if="checkLeftIcon()"
+      :class="[
+        'input-group__icon',
+        { 'input-group_icon-left': checkLeftIcon() }
+      ]"
+    >
+      <slot name="left-icon" />
     </div>
 
-    <input ref="input" class="form-control form-control_rounded form-control_sm" />
+    <component
+      v-bind="$attrs"
+      :is="isMultiline"
+      ref="input"
+      class="form-control"
+      :class="{ 'form-control_rounded': rounded, 'form-control_sm': small }"
+      :value="modelValue"
+      @[updateEvent]="handleInput"
+    />
 
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+    <div
+      v-if="checkRightIcon()"
+      :class="[
+        'input-group__icon',
+        { 'input-group_icon-right': checkRightIcon() }
+      ]"
+    >
+      <slot name="right-icon" />
     </div>
   </div>
 </template>
@@ -15,6 +42,53 @@
 <script>
 export default {
   name: 'UiInput',
+
+  inheritAttrs: false,
+
+  props: {
+    small: {
+      type: Boolean,
+    },
+    rounded: {
+      type: Boolean,
+    },
+    multiline: {
+      type: Boolean,
+    },
+    modelValue: {
+      type: String,
+    },
+    modelModifiers: {
+      default: () => ({
+        lazy: false,
+      }),
+    },
+  },
+  emits: ['update:modelValue'],
+
+  computed: {
+    isMultiline() {
+      return this.multiline ? 'textarea' : 'input';
+    },
+    updateEvent() {
+      return this.modelModifiers.lazy ? 'change' : 'input';
+    },
+  },
+
+  methods: {
+    focus() {
+      this.$refs['input'].focus();
+    },
+    checkLeftIcon() {
+      return Boolean(this.$slots['left-icon']);
+    },
+    checkRightIcon() {
+      return Boolean(this.$slots['right-icon']);
+    },
+    handleInput(event) {
+      this.$emit('update:modelValue', event.target.value);
+    },
+  },
 };
 </script>
 

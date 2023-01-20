@@ -1,15 +1,111 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label
+      class="image-uploader__preview"
+      :class="{ 'image-uploader__preview-loading': isLoading }"
+      :style="{ '--bg-url': bgImage }"
+    >
+      <span class="image-uploader__text">{{ title }}</span>
+      <input
+        ref="inputFile"
+        v-bind:="$attrs"
+        type="file"
+        accept="image/*"
+        class="image-uploader__input"
+        @click="removeFile"
+        @change="changeImage"
+      />
     </label>
   </div>
 </template>
 
 <script>
+import { ref, computed, watch } from 'vue';
+
 export default {
   name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: {
+      type: String,
+      default: '',
+    },
+    uploader: {
+      type: Function,
+      required: false,
+    },
+  },
+
+  emits: ['remove', 'upload', 'error', 'select'],
+
+  setup(props, { emit }) {
+    //состояние
+    const isLoading = ref(false);
+    const localPreview = ref(null);
+    const inputFile = ref(null);
+    const bgImage = computed(() => (localPreview.value ? `url(${localPreview.value})` : 'var(--default-cover)'));
+    const title = computed(() => {
+      if (isLoading.value) {
+        return 'Загрузка...';
+      }
+      return localPreview.value ? 'Удалить изображение' : 'Загрузить изображение';
+    });
+    watch(() => props.preview,
+      (currentValue, oldValue) => {
+        localPreview.value = currentValue;
+      },
+      { deep: true, immediate: true },
+    );
+
+    //удаление изображения
+    const removeInputValue = () => {
+      inputFile.value.value = null;
+    };
+    const removeFile = (e) => {
+      if (isLoading.value) {
+        return false;
+      }
+      if (localPreview.value) {
+        removeInputValue();
+        localPreview.value = null;
+        emit('remove');
+      }
+    };
+
+    //загрузка изображения
+    const changeImage = async (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        return false;
+      }
+      isLoading.value = true;
+      if (props.uploader) {
+        try {
+          const result = await props.uploader(file);
+          emit('upload', result);
+        } catch (e) {
+          removeInputValue();
+          emit('error', e);
+        }
+      } else {
+        localPreview.value = URL.createObjectURL(file);
+      }
+      emit('select', file);
+      isLoading.value = false;
+    };
+
+    return {
+      isLoading,
+      localPreview,
+      inputFile,
+      bgImage,
+      title,
+      changeImage,
+      removeFile
+    };
+  },
 };
 </script>
 
